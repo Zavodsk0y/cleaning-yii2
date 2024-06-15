@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Request;
 use app\models\RequestSearch;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -30,14 +31,24 @@ class RequestController extends Controller
                 ],
                 'access' => [
                     'class' => \yii\filters\AccessControl::class,
-                    'only' => ['create'],
+                    'only' => ['create', 'update', 'index'],
                     'rules' => [
-                        // allow authenticated users
                         [
                             'allow' => true,
+                            'actions' => ['create'],
                             'roles' => ['@'],
                         ],
-                        // everything else is denied
+                        [
+                            'allow' => true,
+                            'actions' => ['update', 'index'],
+                            'roles' => ['@'],
+                            'matchCallback' => function ($rule, $action) {
+                                return Yii::$app->user->identity->adminRole();
+                            },
+                        ],
+                        [
+                            'allow' => false,
+                        ],
                     ],
                 ],
             ]
